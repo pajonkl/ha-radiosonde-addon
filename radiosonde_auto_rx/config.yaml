@@ -15,6 +15,7 @@ ports_description:
   5000/tcp: "Panel webowy radiosonde_auto_rx"
 webui: "http://[HOST]:[PORT:5000]"
 usb: true
+homeassistant_api: true
 options:
   station_lat: 48.2082
   station_lon: 16.3738
@@ -25,6 +26,9 @@ options:
   ppm: 0
   gain: -1
   bias: false
+  notify_service: "mobile_app_iphone_17_lukasz"
+  proximity_km: 15
+  notify_cooldown_minutes: 30
 schema:
   station_lat: float
   station_lon: float
@@ -35,3 +39,6 @@ schema:
   ppm: int
   gain: float
   bias: bool
+  notify_service: str
+  proximity_km: float
+  notify_cooldown_minutes: float
