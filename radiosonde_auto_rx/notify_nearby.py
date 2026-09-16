@@ -66,7 +66,14 @@ def notifications_enabled(token):
 
 def main():
     token = os.environ.get("SUPERVISOR_TOKEN")
+    print(
+        f"notify_nearby: started (token {'present' if token else 'MISSING'}); "
+        f"polling SondeHub every 120s",
+        flush=True,
+    )
+    cycle = 0
     while True:
+        cycle += 1
         try:
             o = load_options()
             lat = float(o.get("station_lat", 48.2082))
@@ -75,7 +82,15 @@ def main():
             notify_service = o.get("notify_service", "")
             cooldown_minutes = float(o.get("notify_cooldown_minutes", 30))
 
-            if notify_service and token and notifications_enabled(token):
+            enabled = notifications_enabled(token) if (notify_service and token) else False
+            if cycle == 1 or cycle % 5 == 0:
+                print(
+                    f"notify_nearby: cycle {cycle} — notify_service={notify_service!r} "
+                    f"proximity_km={radius_km} enabled={enabled}",
+                    flush=True,
+                )
+
+            if notify_service and token and enabled:
                 url = f"{SONDEHUB_URL}?lat={lat}&lon={lon}&distance={int(radius_km * 1000)}&last=3600"
                 with urllib.request.urlopen(url, timeout=15) as resp:
                     sondes = json.loads(resp.read().decode())
@@ -106,8 +121,9 @@ def main():
                         )
                         state[serial] = now
                         save_state(state)
-        except Exception:
-            pass
+                        print(f"notify_nearby: sent notification for {serial} ({dist:.1f} km)", flush=True)
+        except Exception as e:
+            print(f"notify_nearby: error: {e}", flush=True)
         time.sleep(120)
 
 
