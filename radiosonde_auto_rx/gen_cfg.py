@@ -1,37 +1,38 @@
+import configparser
 import json
 import sys
 
 with open(sys.argv[1]) as f:
     o = json.load(f)
 
-cfg = f"""[location]
-station_lat = {o.get('station_lat', 48.2082)}
-station_lon = {o.get('station_lon', 16.3738)}
-station_alt = {o.get('station_alt', 180)}
+config = configparser.ConfigParser()
+config.read("/station.cfg.template")
 
-gpsd_enabled = False
+if not config.has_section("location"):
+    config.add_section("location")
+config.set("location", "station_lat", str(o.get("station_lat", 48.2082)))
+config.set("location", "station_lon", str(o.get("station_lon", 16.3738)))
+config.set("location", "station_alt", str(o.get("station_alt", 180)))
 
-[sdr_1]
-device_idx = {o.get('device_idx', 0)}
-ppm = {o.get('ppm', 0)}
-gain = {o.get('gain', -1)}
-bias = {o.get('bias', False)}
+if not config.has_section("sdr_1"):
+    config.add_section("sdr_1")
+config.set("sdr_1", "device_idx", str(o.get("device_idx", 0)))
+config.set("sdr_1", "ppm", str(o.get("ppm", 0)))
+config.set("sdr_1", "gain", str(o.get("gain", -1)))
+config.set("sdr_1", "bias", str(bool(o.get("bias", False))))
 
-[search_params]
-min_freq = 400.05
-max_freq = 406.0
-rx_timeout = 180
+if not config.has_section("sondehub"):
+    config.add_section("sondehub")
+config.set("sondehub", "sondehub_enabled", "True")
+config.set(
+    "sondehub",
+    "sondehub_contact_email",
+    str(o.get("sondehub_contact_email", "none@none.com")),
+)
 
-[sondehub]
-sondehub_enabled = True
-sondehub_upload_rate = 15
-sondehub_contact_email = {o.get('sondehub_contact_email', 'none@none.com')}
+if not config.has_section("habitat"):
+    config.add_section("habitat")
+config.set("habitat", "uploader_callsign", str(o.get("uploader_callsign", "HA-User")))
 
-[habitat]
-uploader_callsign = {o.get('uploader_callsign', 'HA-User')}
-upload_listener_position = True
-uploader_antenna = RTL-SDR, stock antenna
-"""
-
-with open('/data/station.cfg', 'w') as f:
-    f.write(cfg)
+with open("/data/station.cfg", "w") as f:
+    config.write(f)
