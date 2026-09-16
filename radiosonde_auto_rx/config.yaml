@@ -1,0 +1,38 @@
+name: "Radiosonde Auto RX"
+version: "1.0.0"
+slug: "radiosonde_auto_rx"
+description: "Automatycznie wykrywa, śledzi i dekoduje radiosondy meteorologiczne (400-406 MHz) przez RTL-SDR, z podglądem na żywo na SondeHub.org"
+url: "https://github.com/projecthorus/radiosonde_auto_rx"
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+init: false
+ports:
+  5000/tcp: 5000
+ports_description:
+  5000/tcp: "Panel webowy radiosonde_auto_rx"
+webui: "http://[HOST]:[PORT:5000]"
+devices:
+  - /dev/bus/usb
+options:
+  station_lat: 48.2082
+  station_lon: 16.3738
+  station_alt: 180
+  uploader_callsign: "HA-Wien"
+  sondehub_contact_email: "none@none.com"
+  device_idx: 0
+  ppm: 0
+  gain: -1
+  bias: false
+schema:
+  station_lat: float
+  station_lon: float
+  station_alt: float
+  uploader_callsign: str
+  sondehub_contact_email: str(3,)
+  device_idx: int
+  ppm: int
+  gain: float
+  bias: bool
