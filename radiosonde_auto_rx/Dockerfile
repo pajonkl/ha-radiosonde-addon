@@ -5,5 +5,5 @@ COPY run.sh /run.sh
 COPY gen_cfg.py /gen_cfg.py
 COPY notify_nearby.py /notify_nearby.py
 RUN chmod a+x /run.sh
-RUN apk add --no-cache ca-certificates && update-ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && update-ca-certificates && rm -rf /var/lib/apt/lists/*
 ENTRYPOINT ["/usr/bin/tini", "--", "/run.sh"]
